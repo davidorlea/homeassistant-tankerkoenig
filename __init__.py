@@ -1,1 +1,1 @@
-"""Tankerkönig Sensor"""
+"""Tankerkönig Sensor."""
