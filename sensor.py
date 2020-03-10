@@ -1,12 +1,11 @@
 """Representation of Tankerkönig Sensors."""
 
 from datetime import timedelta
-import json
 import logging
 
+import requests
 import voluptuous as vol
 
-from homeassistant.components.rest.sensor import RestData
 from homeassistant.components.sensor import PLATFORM_SCHEMA
 from homeassistant.const import (
     ATTR_ATTRIBUTION,
@@ -23,7 +22,7 @@ _LOGGER = logging.getLogger(__name__)
 
 MIN_TIME_BETWEEN_UPDATES = timedelta(minutes=10)
 
-FUEL_TYPES = {"e5", "e10", "diesel"}
+FUEL_TYPES = {"diesel", "e5", "e10"}
 
 CONF_FUEL_TYPE = "fuel_type"
 CONF_RADIUS = "radius"
@@ -60,20 +59,53 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     latitude = hass.config.latitude
     longitude = hass.config.longitude
 
-    url = "https://creativecommons.tankerkoenig.de/json/list.php?lat={}&lng={}&rad={}&sort=price&type={}&apikey={}"
-    endpoint = url.format(latitude, longitude, radius, fuel_type, api_key)
-    rest = RestData("GET", endpoint, None, None, None, True)
+    api = TankerkoenigApi(api_key)
+    add_entities(
+        [TankerkoenigSensor(api, name, latitude, longitude, radius, fuel_type)]
+    )
 
-    add_entities([TankerkoenigSensor(rest, name)])
+
+class TankerkoenigApi:
+    """Representation of the Tankerkönig API."""
+
+    def __init__(self, api_key):
+        """Initialize the Tankerkönig API."""
+        self._api_key = api_key
+
+    def get_stations(self, latitude, longitude, radius, fuel_type):
+        """Get stations matching a perimeter and fuel type from the Tankerkönig API."""
+        resource = (
+            f"https://creativecommons.tankerkoenig.de/json/list.php"
+            f"?apikey={self._api_key}"
+            f"&lat={latitude}"
+            f"&lng={longitude}"
+            f"&rad={radius}"
+            f"&type={fuel_type}"
+            f"&sort=price"
+        )
+        try:
+            response = requests.get(resource, verify=True, timeout=10)
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.RequestException as ex:
+            _LOGGER.error("Error fetching data: %s failed with %s", resource, ex)
+            return None
+        except ValueError as ex:
+            _LOGGER.error("Error parsing data: %s failed with %s", resource, ex)
+            return None
 
 
 class TankerkoenigSensor(Entity):
     """Representation of a Tankerkönig Sensor."""
 
-    def __init__(self, rest, name):
+    def __init__(self, api, name, latitude, longitude, radius, fuel_type):
         """Initialize the Tankerkönig Sensor."""
-        self.rest = rest
+        self._api = api
         self._name = name
+        self._latitude = latitude
+        self._longitude = longitude
+        self._radius = radius
+        self._fuel_type = fuel_type
         self._state = None
         self._attributes = {}
 
@@ -99,7 +131,7 @@ class TankerkoenigSensor(Entity):
 
     @property
     def device_state_attributes(self):
-        """Return the state attributes of the Tankerkönig Sensor.."""
+        """Return the state attributes of the Tankerkönig Sensor."""
         return self._attributes
 
     @Throttle(MIN_TIME_BETWEEN_UPDATES)
@@ -108,21 +140,20 @@ class TankerkoenigSensor(Entity):
         self._state = None
         self._attributes = {}
 
-        self.rest.update()
-        result = self.rest.data
-        stations = []
+        result = self._api.get_stations(
+            self._latitude, self._longitude, self._radius, self._fuel_type
+        )
+        stations = None
 
         if result:
             try:
-                json_result = json.loads(result)
-                if json_result["ok"]:
-                    stations = json_result["stations"]
-                    _LOGGER.debug("Received stations: %s", stations)
-            except ValueError:
-                _LOGGER.warning("REST result could not be parsed as JSON")
-                _LOGGER.debug("Erroneous JSON: %s", result)
+                stations = result["stations"]
+            except KeyError as ex:
+                _LOGGER.error(
+                    "Erroneous result found when expecting list of stations: %s", ex
+                )
         else:
-            _LOGGER.warning("Empty reply found when expecting JSON data")
+            _LOGGER.error("Empty result found when expecting list of stations")
 
         if stations:
             self._state = stations[0]["price"]

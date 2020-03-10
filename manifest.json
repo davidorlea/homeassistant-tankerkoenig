@@ -3,7 +3,6 @@
   "name": "Tankerkoenig Sensor",
   "documentation": "",
   "dependencies": [],
-  "after_dependencies": ["rest"],
   "codeowners": ["@davidorlea"],
   "requirements": []
 }
