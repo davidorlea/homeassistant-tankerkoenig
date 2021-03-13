@@ -1,6 +1,7 @@
 {
   "domain": "tankerkoenig",
   "name": "Tankerkoenig Sensor",
+  "version": "0.2.0",
   "documentation": "",
   "dependencies": [],
   "codeowners": ["@davidorlea"],
