@@ -2,7 +2,8 @@
   "domain": "tankerkoenig",
   "name": "Tankerkoenig Sensor",
   "version": "0.2.0",
-  "documentation": "",
+  "documentation": "https://github.com/davidorlea/homeassistant-tankerkoenig",
+  "issue_tracker": "https://github.com/davidorlea/homeassistant-tankerkoenig/issues",
   "dependencies": [],
   "codeowners": ["@davidorlea"],
   "requirements": []
