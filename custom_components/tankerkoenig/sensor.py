@@ -6,13 +6,14 @@ import logging
 import requests
 import voluptuous as vol
 
-from homeassistant.components.sensor import PLATFORM_SCHEMA
+from homeassistant.components.sensor import PLATFORM_SCHEMA, SensorDeviceClass
 from homeassistant.const import (
     ATTR_ATTRIBUTION,
     ATTR_LATITUDE,
     ATTR_LONGITUDE,
     CONF_API_KEY,
     CONF_NAME,
+    CURRENCY_EURO,
 )
 import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.entity import Entity
@@ -34,7 +35,6 @@ ATTR_BRAND = "brand"
 ATTR_ADDRESS = "address"
 ATTR_STATUS = "status"
 
-UNIT_OF_MEASUREMENT = "€"
 ICON = "mdi:gas-station"
 ATTRIBUTION = "Data provided by Tankerkönig"
 
@@ -115,9 +115,14 @@ class TankerkoenigSensor(Entity):
         return self._name
 
     @property
+    def device_class(self):
+        """Return the device class of the Tankerkönig Sensor."""
+        return SensorDeviceClass.MONETARY
+
+    @property
     def unit_of_measurement(self):
         """Return the unit of measurement of the Tankerkönig Sensor."""
-        return UNIT_OF_MEASUREMENT
+        return CURRENCY_EURO
 
     @property
     def icon(self):
