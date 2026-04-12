@@ -162,9 +162,9 @@ class TankerkoenigSensor(Entity):
 
         if stations:
             self._state = stations[0]["price"]
-            self._attributes[ATTR_BRAND] = stations[0]["brand"].title()
+            self._attributes[ATTR_BRAND] = stations[0]["brand"].title().strip()
             self._attributes[ATTR_ADDRESS] = (
-                stations[0]["street"].title() + stations[0]["houseNumber"]
+                f"{stations[0]["street"].title().strip()} {stations[0]["houseNumber"].strip()}"
             )
             self._attributes[ATTR_STATUS] = (
                 "open" if stations[0]["isOpen"] else "closed"

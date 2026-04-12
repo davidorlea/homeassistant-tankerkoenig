@@ -61,10 +61,52 @@ def test_sensor_with_no_stations(
     assert sensor.extra_state_attributes.get("attribution") is None
 
 
+def test_sensor_with_malformed_station(
+    create_station, create_api_response, requests_mock: requests_mock.Mocker
+):
+    """Test that sensor with malformed station returns correct properties."""
+    station = (
+        create_station()
+        .with_brand("  Demo Oil  ")
+        .with_street("  Demo street  ")
+        .with_house_number(" 1a ")
+        .with_latitude(52.53083)
+        .with_longitude(13.440946)
+        .with_is_open(True)
+        .with_price(1.825)
+        .build()
+    )
+
+    requests_mock.get(
+        "https://creativecommons.tankerkoenig.de/json/list.php",
+        text=create_api_response([station]),
+    )
+
+    api = TankerkoenigApi("some-api-key")
+    sensor = TankerkoenigSensor(api, "Sensor", "5.0", "5.0", 1.5, "diesel")
+
+    sensor.update()
+
+    assert sensor.name == "Sensor"
+    assert sensor.icon == "mdi:gas-station"
+    assert sensor.device_class == SensorDeviceClass.MONETARY
+    assert sensor.unit_of_measurement == CURRENCY_EURO
+    assert sensor.state == 1.825
+    assert sensor.extra_state_attributes.get("brand") == "Demo Oil"
+    assert sensor.extra_state_attributes.get("address") == "Demo Street 1a"
+    assert sensor.extra_state_attributes.get("status") == "open"
+    assert sensor.extra_state_attributes.get("latitude") == 52.53083
+    assert sensor.extra_state_attributes.get("longitude") == 13.440946
+    assert (
+        sensor.extra_state_attributes.get("attribution")
+        == "Data provided by Tankerkönig"
+    )
+
+
 def test_sensor_with_opened_station(
     create_station, create_api_response, requests_mock: requests_mock.Mocker
 ):
-    """Test that sensor with open of station returns correct properties."""
+    """Test that sensor with opened station returns correct properties."""
     station = (
         create_station()
         .with_brand("Demo Oil")
@@ -93,7 +135,7 @@ def test_sensor_with_opened_station(
     assert sensor.unit_of_measurement == CURRENCY_EURO
     assert sensor.state == 1.825
     assert sensor.extra_state_attributes.get("brand") == "Demo Oil"
-    assert sensor.extra_state_attributes.get("address") == "Demo Street1a"
+    assert sensor.extra_state_attributes.get("address") == "Demo Street 1a"
     assert sensor.extra_state_attributes.get("status") == "open"
     assert sensor.extra_state_attributes.get("latitude") == 52.53083
     assert sensor.extra_state_attributes.get("longitude") == 13.440946
@@ -106,7 +148,7 @@ def test_sensor_with_opened_station(
 def test_sensor_with_closed_station(
     create_station, create_api_response, requests_mock: requests_mock.Mocker
 ):
-    """Test that sensor with closed of station returns correct properties."""
+    """Test that sensor with closed station returns correct properties."""
     station = (
         create_station()
         .with_brand("Demo Oil")
@@ -135,7 +177,7 @@ def test_sensor_with_closed_station(
     assert sensor.unit_of_measurement == CURRENCY_EURO
     assert sensor.state == 1.825
     assert sensor.extra_state_attributes.get("brand") == "Demo Oil"
-    assert sensor.extra_state_attributes.get("address") == "Demo Street1a"
+    assert sensor.extra_state_attributes.get("address") == "Demo Street 1a"
     assert sensor.extra_state_attributes.get("status") == "closed"
     assert sensor.extra_state_attributes.get("latitude") == 52.53083
     assert sensor.extra_state_attributes.get("longitude") == 13.440946
@@ -188,7 +230,7 @@ def test_sensor_with_multiple_stations(
     assert sensor.unit_of_measurement == CURRENCY_EURO
     assert sensor.state == 2.825
     assert sensor.extra_state_attributes.get("brand") == "Demo Oil First"
-    assert sensor.extra_state_attributes.get("address") == "Demo Street First1a"
+    assert sensor.extra_state_attributes.get("address") == "Demo Street First 1a"
     assert sensor.extra_state_attributes.get("status") == "closed"
     assert sensor.extra_state_attributes.get("latitude") == 52.53083
     assert sensor.extra_state_attributes.get("longitude") == 13.440946
