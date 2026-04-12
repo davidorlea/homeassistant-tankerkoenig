@@ -1,5 +1,9 @@
 """Tests for Tankerkönig Sensor."""
 
+import json
+
+import pytest
+import requests
 import requests_mock
 
 from custom_components.tankerkoenig.sensor import TankerkoenigApi, TankerkoenigSensor
@@ -7,13 +11,47 @@ from homeassistant.components.sensor import SensorDeviceClass
 from homeassistant.const import CURRENCY_EURO
 
 
-def test_sensor_with_empty_response(
-    create_api_response, requests_mock: requests_mock.Mocker
-):
+@pytest.mark.parametrize(
+    "api_response",
+    [
+        None,
+        "",
+        {},
+        {"stations": None},
+        {"stations": {}},
+    ],
+)
+def test_sensor_with_empty_response(api_response, requests_mock: requests_mock.Mocker):
     """Test that sensor with empty response returns correct properties."""
     requests_mock.get(
         "https://creativecommons.tankerkoenig.de/json/list.php",
-        text="{}",
+        text=json.dumps(api_response),
+    )
+    api = TankerkoenigApi("some-api-key")
+    sensor = TankerkoenigSensor(api, "Sensor", "5.0", "5.0", 1.5, "diesel")
+
+    sensor.update()
+
+    assert sensor.name == "Sensor"
+    assert sensor.icon == "mdi:gas-station"
+    assert sensor.device_class == SensorDeviceClass.MONETARY
+    assert sensor.unit_of_measurement == CURRENCY_EURO
+    assert sensor.state is None
+    assert sensor.extra_state_attributes.get("brand") is None
+    assert sensor.extra_state_attributes.get("address") is None
+    assert sensor.extra_state_attributes.get("status") is None
+    assert sensor.extra_state_attributes.get("latitude") is None
+    assert sensor.extra_state_attributes.get("longitude") is None
+    assert sensor.extra_state_attributes.get("attribution") is None
+
+
+def test_sensor_with_malformed_response(
+    create_api_response, requests_mock: requests_mock.Mocker
+):
+    """Test that sensor with malformed response returns correct properties."""
+    requests_mock.get(
+        "https://creativecommons.tankerkoenig.de/json/list.php",
+        text="some text",
     )
 
     api = TankerkoenigApi("some-api-key")
@@ -34,13 +72,41 @@ def test_sensor_with_empty_response(
     assert sensor.extra_state_attributes.get("attribution") is None
 
 
-def test_sensor_with_no_stations(
+def test_sensor_with_error_response(
     create_api_response, requests_mock: requests_mock.Mocker
 ):
-    """Test that sensor with empty list of stations returns correct properties."""
+    """Test that sensor with error response returns correct properties."""
     requests_mock.get(
         "https://creativecommons.tankerkoenig.de/json/list.php",
-        text=create_api_response([]),
+        status_code=500,
+        text="some error",
+    )
+
+    api = TankerkoenigApi("some-api-key")
+    sensor = TankerkoenigSensor(api, "Sensor", "5.0", "5.0", 1.5, "diesel")
+
+    sensor.update()
+
+    assert sensor.name == "Sensor"
+    assert sensor.icon == "mdi:gas-station"
+    assert sensor.device_class == SensorDeviceClass.MONETARY
+    assert sensor.unit_of_measurement == CURRENCY_EURO
+    assert sensor.state is None
+    assert sensor.extra_state_attributes.get("brand") is None
+    assert sensor.extra_state_attributes.get("address") is None
+    assert sensor.extra_state_attributes.get("status") is None
+    assert sensor.extra_state_attributes.get("latitude") is None
+    assert sensor.extra_state_attributes.get("longitude") is None
+    assert sensor.extra_state_attributes.get("attribution") is None
+
+
+def test_sensor_with_no_response(
+    create_api_response, requests_mock: requests_mock.Mocker
+):
+    """Test that sensor with no response returns correct properties."""
+    requests_mock.get(
+        "https://creativecommons.tankerkoenig.de/json/list.php",
+        exc=requests.exceptions.ConnectionError,
     )
 
     api = TankerkoenigApi("some-api-key")
