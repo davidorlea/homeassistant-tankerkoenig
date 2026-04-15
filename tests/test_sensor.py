@@ -2,13 +2,13 @@
 
 import json
 
+from homeassistant.components.sensor import SensorDeviceClass
+from homeassistant.const import CURRENCY_EURO
 import pytest
 import requests
 import requests_mock
 
 from custom_components.tankerkoenig.sensor import TankerkoenigApi, TankerkoenigSensor
-from homeassistant.components.sensor import SensorDeviceClass
-from homeassistant.const import CURRENCY_EURO
 
 
 @pytest.mark.parametrize(

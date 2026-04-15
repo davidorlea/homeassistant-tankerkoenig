@@ -4,9 +4,6 @@ from datetime import timedelta
 import json
 import logging
 
-import requests
-import voluptuous as vol
-
 from homeassistant.components.sensor import PLATFORM_SCHEMA, SensorDeviceClass
 from homeassistant.const import (
     ATTR_ATTRIBUTION,
@@ -19,6 +16,8 @@ from homeassistant.const import (
 import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.entity import Entity
 from homeassistant.util import Throttle
+import requests
+import voluptuous as vol
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -171,7 +170,7 @@ class TankerkoenigSensor(Entity):
             self._state = stations[0]["price"]
             self._attributes[ATTR_BRAND] = stations[0]["brand"].title().strip()
             self._attributes[ATTR_ADDRESS] = (
-                f"{stations[0]["street"].title().strip()} {stations[0]["houseNumber"].strip()}"
+                f"{stations[0]['street'].title().strip()} {stations[0]['houseNumber'].strip()}"
             )
             self._attributes[ATTR_STATUS] = (
                 "open" if stations[0]["isOpen"] else "closed"
