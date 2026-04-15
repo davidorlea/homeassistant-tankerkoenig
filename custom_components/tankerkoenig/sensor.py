@@ -1,7 +1,6 @@
 """Representation of Tankerkönig Sensors."""
 
 from datetime import timedelta
-import json
 import logging
 
 from homeassistant.components.sensor import PLATFORM_SCHEMA, SensorDeviceClass
@@ -84,17 +83,20 @@ class TankerkoenigApi:
             f"&sort=price"
         )
         try:
-            response = requests.get(resource, verify=True, timeout=10)
+            response = requests.get(resource, verify=True, timeout=(5, 10))
             response.raise_for_status()
             return response.json()
-        except json.decoder.JSONDecodeError as ex:
+        except requests.exceptions.JSONDecodeError as ex:
             _LOGGER.error("Error parsing data: %s failed with %s", resource, ex)
             return None
         except requests.exceptions.HTTPError as ex:
             if ex.response.status_code >= 500:
-                _LOGGER.warning("Error fetching data: %s failed with %s", resource, ex)
+                _LOGGER.debug("Error fetching data: %s failed with %s", resource, ex)
             else:
                 _LOGGER.error("Error fetching data: %s failed with %s", resource, ex)
+            return None
+        except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as ex:
+            _LOGGER.debug("Error fetching data: %s failed with %s", resource, ex)
             return None
         except requests.exceptions.RequestException as ex:
             _LOGGER.error("Error fetching data: %s failed with %s", resource, ex)
