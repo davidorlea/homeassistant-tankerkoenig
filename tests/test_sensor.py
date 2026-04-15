@@ -1,9 +1,9 @@
 """Tests for Tankerkönig Sensor."""
 
 import json
+from typing import Any
 
 from homeassistant.components.sensor import SensorDeviceClass
-from homeassistant.const import CURRENCY_EURO
 import pytest
 import requests
 import requests_mock
@@ -21,21 +21,24 @@ from custom_components.tankerkoenig.sensor import TankerkoenigApi, TankerkoenigS
         {"stations": {}},
     ],
 )
-def test_sensor_with_empty_response(api_response, requests_mock: requests_mock.Mocker):
+def test_sensor_with_empty_response(
+    api_response: Any, requests_mock: requests_mock.Mocker
+) -> None:
     """Test that sensor with empty response returns correct properties."""
     requests_mock.get(
         "https://creativecommons.tankerkoenig.de/json/list.php",
         text=json.dumps(api_response),
     )
-    api = TankerkoenigApi("some-api-key")
-    sensor = TankerkoenigSensor(api, "Sensor", "5.0", "5.0", 1.5, "diesel")
+    sensor = TankerkoenigSensor(
+        TankerkoenigApi("some-api-key"), "Sensor", 5.0, 5.0, 1.5, "diesel"
+    )
 
     sensor.update()
 
     assert sensor.name == "Sensor"
     assert sensor.icon == "mdi:gas-station"
     assert sensor.device_class == SensorDeviceClass.MONETARY
-    assert sensor.unit_of_measurement == CURRENCY_EURO
+    assert sensor.unit_of_measurement == "€"
     assert sensor.state is None
     assert sensor.extra_state_attributes.get("brand") is None
     assert sensor.extra_state_attributes.get("address") is None
@@ -46,23 +49,23 @@ def test_sensor_with_empty_response(api_response, requests_mock: requests_mock.M
 
 
 def test_sensor_with_malformed_response(
-    create_api_response, requests_mock: requests_mock.Mocker
-):
+    create_api_response: Any, requests_mock: requests_mock.Mocker
+) -> None:
     """Test that sensor with malformed response returns correct properties."""
     requests_mock.get(
         "https://creativecommons.tankerkoenig.de/json/list.php",
         text="some text",
     )
-
-    api = TankerkoenigApi("some-api-key")
-    sensor = TankerkoenigSensor(api, "Sensor", "5.0", "5.0", 1.5, "diesel")
+    sensor = TankerkoenigSensor(
+        TankerkoenigApi("some-api-key"), "Sensor", 5.0, 5.0, 1.5, "diesel"
+    )
 
     sensor.update()
 
     assert sensor.name == "Sensor"
     assert sensor.icon == "mdi:gas-station"
     assert sensor.device_class == SensorDeviceClass.MONETARY
-    assert sensor.unit_of_measurement == CURRENCY_EURO
+    assert sensor.unit_of_measurement == "€"
     assert sensor.state is None
     assert sensor.extra_state_attributes.get("brand") is None
     assert sensor.extra_state_attributes.get("address") is None
@@ -73,24 +76,24 @@ def test_sensor_with_malformed_response(
 
 
 def test_sensor_with_error_response(
-    create_api_response, requests_mock: requests_mock.Mocker
-):
+    create_api_response: Any, requests_mock: requests_mock.Mocker
+) -> None:
     """Test that sensor with error response returns correct properties."""
     requests_mock.get(
         "https://creativecommons.tankerkoenig.de/json/list.php",
         status_code=500,
         text="some error",
     )
-
-    api = TankerkoenigApi("some-api-key")
-    sensor = TankerkoenigSensor(api, "Sensor", "5.0", "5.0", 1.5, "diesel")
+    sensor = TankerkoenigSensor(
+        TankerkoenigApi("some-api-key"), "Sensor", 5.0, 5.0, 1.5, "diesel"
+    )
 
     sensor.update()
 
     assert sensor.name == "Sensor"
     assert sensor.icon == "mdi:gas-station"
     assert sensor.device_class == SensorDeviceClass.MONETARY
-    assert sensor.unit_of_measurement == CURRENCY_EURO
+    assert sensor.unit_of_measurement == "€"
     assert sensor.state is None
     assert sensor.extra_state_attributes.get("brand") is None
     assert sensor.extra_state_attributes.get("address") is None
@@ -101,23 +104,23 @@ def test_sensor_with_error_response(
 
 
 def test_sensor_with_no_response(
-    create_api_response, requests_mock: requests_mock.Mocker
-):
+    create_api_response: Any, requests_mock: requests_mock.Mocker
+) -> None:
     """Test that sensor with no response returns correct properties."""
     requests_mock.get(
         "https://creativecommons.tankerkoenig.de/json/list.php",
         exc=requests.exceptions.ConnectionError,
     )
-
-    api = TankerkoenigApi("some-api-key")
-    sensor = TankerkoenigSensor(api, "Sensor", "5.0", "5.0", 1.5, "diesel")
+    sensor = TankerkoenigSensor(
+        TankerkoenigApi("some-api-key"), "Sensor", 5.0, 5.0, 1.5, "diesel"
+    )
 
     sensor.update()
 
     assert sensor.name == "Sensor"
     assert sensor.icon == "mdi:gas-station"
     assert sensor.device_class == SensorDeviceClass.MONETARY
-    assert sensor.unit_of_measurement == CURRENCY_EURO
+    assert sensor.unit_of_measurement == "€"
     assert sensor.state is None
     assert sensor.extra_state_attributes.get("brand") is None
     assert sensor.extra_state_attributes.get("address") is None
@@ -128,8 +131,8 @@ def test_sensor_with_no_response(
 
 
 def test_sensor_with_malformed_station(
-    create_station, create_api_response, requests_mock: requests_mock.Mocker
-):
+    create_station: Any, create_api_response: Any, requests_mock: requests_mock.Mocker
+) -> None:
     """Test that sensor with malformed station returns correct properties."""
     station = (
         create_station()
@@ -142,21 +145,20 @@ def test_sensor_with_malformed_station(
         .with_price(1.825)
         .build()
     )
-
     requests_mock.get(
         "https://creativecommons.tankerkoenig.de/json/list.php",
         text=create_api_response([station]),
     )
-
-    api = TankerkoenigApi("some-api-key")
-    sensor = TankerkoenigSensor(api, "Sensor", "5.0", "5.0", 1.5, "diesel")
+    sensor = TankerkoenigSensor(
+        TankerkoenigApi("some-api-key"), "Sensor", 5.0, 5.0, 1.5, "diesel"
+    )
 
     sensor.update()
 
     assert sensor.name == "Sensor"
     assert sensor.icon == "mdi:gas-station"
     assert sensor.device_class == SensorDeviceClass.MONETARY
-    assert sensor.unit_of_measurement == CURRENCY_EURO
+    assert sensor.unit_of_measurement == "€"
     assert sensor.state == 1.825
     assert sensor.extra_state_attributes.get("brand") == "Demo Oil"
     assert sensor.extra_state_attributes.get("address") == "Demo Street 1a"
@@ -170,8 +172,8 @@ def test_sensor_with_malformed_station(
 
 
 def test_sensor_with_opened_station(
-    create_station, create_api_response, requests_mock: requests_mock.Mocker
-):
+    create_station: Any, create_api_response: Any, requests_mock: requests_mock.Mocker
+) -> None:
     """Test that sensor with opened station returns correct properties."""
     station = (
         create_station()
@@ -184,21 +186,20 @@ def test_sensor_with_opened_station(
         .with_price(1.825)
         .build()
     )
-
     requests_mock.get(
         "https://creativecommons.tankerkoenig.de/json/list.php",
         text=create_api_response([station]),
     )
-
-    api = TankerkoenigApi("some-api-key")
-    sensor = TankerkoenigSensor(api, "Sensor", "5.0", "5.0", 1.5, "diesel")
+    sensor = TankerkoenigSensor(
+        TankerkoenigApi("some-api-key"), "Sensor", 5.0, 5.0, 1.5, "diesel"
+    )
 
     sensor.update()
 
     assert sensor.name == "Sensor"
     assert sensor.icon == "mdi:gas-station"
     assert sensor.device_class == SensorDeviceClass.MONETARY
-    assert sensor.unit_of_measurement == CURRENCY_EURO
+    assert sensor.unit_of_measurement == "€"
     assert sensor.state == 1.825
     assert sensor.extra_state_attributes.get("brand") == "Demo Oil"
     assert sensor.extra_state_attributes.get("address") == "Demo Street 1a"
@@ -212,8 +213,8 @@ def test_sensor_with_opened_station(
 
 
 def test_sensor_with_closed_station(
-    create_station, create_api_response, requests_mock: requests_mock.Mocker
-):
+    create_station: Any, create_api_response: Any, requests_mock: requests_mock.Mocker
+) -> None:
     """Test that sensor with closed station returns correct properties."""
     station = (
         create_station()
@@ -226,21 +227,20 @@ def test_sensor_with_closed_station(
         .with_price(1.825)
         .build()
     )
-
     requests_mock.get(
         "https://creativecommons.tankerkoenig.de/json/list.php",
         text=create_api_response([station]),
     )
-
-    api = TankerkoenigApi("some-api-key")
-    sensor = TankerkoenigSensor(api, "Sensor", "5.0", "5.0", 1.5, "diesel")
+    sensor = TankerkoenigSensor(
+        TankerkoenigApi("some-api-key"), "Sensor", 5.0, 5.0, 1.5, "diesel"
+    )
 
     sensor.update()
 
     assert sensor.name == "Sensor"
     assert sensor.icon == "mdi:gas-station"
     assert sensor.device_class == SensorDeviceClass.MONETARY
-    assert sensor.unit_of_measurement == CURRENCY_EURO
+    assert sensor.unit_of_measurement == "€"
     assert sensor.state == 1.825
     assert sensor.extra_state_attributes.get("brand") == "Demo Oil"
     assert sensor.extra_state_attributes.get("address") == "Demo Street 1a"
@@ -254,8 +254,8 @@ def test_sensor_with_closed_station(
 
 
 def test_sensor_with_multiple_stations(
-    create_station, create_api_response, requests_mock: requests_mock.Mocker
-):
+    create_station: Any, create_api_response: Any, requests_mock: requests_mock.Mocker
+) -> None:
     """Test that sensor with multiple stations returns correct properties."""
     station_first = (
         create_station()
@@ -279,21 +279,20 @@ def test_sensor_with_multiple_stations(
         .with_price(3.825)
         .build()
     )
-
     requests_mock.get(
         "https://creativecommons.tankerkoenig.de/json/list.php",
         text=create_api_response([station_first, station_second]),
     )
-
-    api = TankerkoenigApi("some-api-key")
-    sensor = TankerkoenigSensor(api, "Sensor", "5.0", "5.0", 1.5, "diesel")
+    sensor = TankerkoenigSensor(
+        TankerkoenigApi("some-api-key"), "Sensor", 5.0, 5.0, 1.5, "diesel"
+    )
 
     sensor.update()
 
     assert sensor.name == "Sensor"
     assert sensor.icon == "mdi:gas-station"
     assert sensor.device_class == SensorDeviceClass.MONETARY
-    assert sensor.unit_of_measurement == CURRENCY_EURO
+    assert sensor.unit_of_measurement == "€"
     assert sensor.state == 2.825
     assert sensor.extra_state_attributes.get("brand") == "Demo Oil First"
     assert sensor.extra_state_attributes.get("address") == "Demo Street First 1a"
