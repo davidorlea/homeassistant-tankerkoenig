@@ -66,3 +66,8 @@ warn_return_any = true
 warn_unreachable = true
 enable_error_code = ["deprecated", "ignore-without-code", "redundant-self", "truthy-iterable"]
 disable_error_code = ["import-untyped"]
+
+[tool.pytest.ini_options]
+filterwarnings = [
+    "ignore::DeprecationWarning:homeassistant",
+]
