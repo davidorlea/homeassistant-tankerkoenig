@@ -40,12 +40,12 @@ def test_sensor_with_empty_response(
     assert sensor.device_class == SensorDeviceClass.MONETARY
     assert sensor.unit_of_measurement == "€"
     assert sensor.state is None
-    assert sensor.extra_state_attributes.get("brand") is None
-    assert sensor.extra_state_attributes.get("address") is None
-    assert sensor.extra_state_attributes.get("status") is None
-    assert sensor.extra_state_attributes.get("latitude") is None
-    assert sensor.extra_state_attributes.get("longitude") is None
-    assert sensor.extra_state_attributes.get("attribution") is None
+    assert "brand" not in sensor.extra_state_attributes
+    assert "address" not in sensor.extra_state_attributes
+    assert "status" not in sensor.extra_state_attributes
+    assert "latitude" not in sensor.extra_state_attributes
+    assert "longitude" not in sensor.extra_state_attributes
+    assert "attribution" not in sensor.extra_state_attributes
 
 
 def test_sensor_with_malformed_response(
@@ -67,12 +67,12 @@ def test_sensor_with_malformed_response(
     assert sensor.device_class == SensorDeviceClass.MONETARY
     assert sensor.unit_of_measurement == "€"
     assert sensor.state is None
-    assert sensor.extra_state_attributes.get("brand") is None
-    assert sensor.extra_state_attributes.get("address") is None
-    assert sensor.extra_state_attributes.get("status") is None
-    assert sensor.extra_state_attributes.get("latitude") is None
-    assert sensor.extra_state_attributes.get("longitude") is None
-    assert sensor.extra_state_attributes.get("attribution") is None
+    assert "brand" not in sensor.extra_state_attributes
+    assert "address" not in sensor.extra_state_attributes
+    assert "status" not in sensor.extra_state_attributes
+    assert "latitude" not in sensor.extra_state_attributes
+    assert "longitude" not in sensor.extra_state_attributes
+    assert "attribution" not in sensor.extra_state_attributes
 
 
 def test_sensor_with_error_response(
@@ -95,12 +95,12 @@ def test_sensor_with_error_response(
     assert sensor.device_class == SensorDeviceClass.MONETARY
     assert sensor.unit_of_measurement == "€"
     assert sensor.state is None
-    assert sensor.extra_state_attributes.get("brand") is None
-    assert sensor.extra_state_attributes.get("address") is None
-    assert sensor.extra_state_attributes.get("status") is None
-    assert sensor.extra_state_attributes.get("latitude") is None
-    assert sensor.extra_state_attributes.get("longitude") is None
-    assert sensor.extra_state_attributes.get("attribution") is None
+    assert "brand" not in sensor.extra_state_attributes
+    assert "address" not in sensor.extra_state_attributes
+    assert "status" not in sensor.extra_state_attributes
+    assert "latitude" not in sensor.extra_state_attributes
+    assert "longitude" not in sensor.extra_state_attributes
+    assert "attribution" not in sensor.extra_state_attributes
 
 
 def test_sensor_with_no_response(
@@ -122,12 +122,12 @@ def test_sensor_with_no_response(
     assert sensor.device_class == SensorDeviceClass.MONETARY
     assert sensor.unit_of_measurement == "€"
     assert sensor.state is None
-    assert sensor.extra_state_attributes.get("brand") is None
-    assert sensor.extra_state_attributes.get("address") is None
-    assert sensor.extra_state_attributes.get("status") is None
-    assert sensor.extra_state_attributes.get("latitude") is None
-    assert sensor.extra_state_attributes.get("longitude") is None
-    assert sensor.extra_state_attributes.get("attribution") is None
+    assert "brand" not in sensor.extra_state_attributes
+    assert "address" not in sensor.extra_state_attributes
+    assert "status" not in sensor.extra_state_attributes
+    assert "latitude" not in sensor.extra_state_attributes
+    assert "longitude" not in sensor.extra_state_attributes
+    assert "attribution" not in sensor.extra_state_attributes
 
 
 def test_sensor_with_malformed_station(
@@ -160,14 +160,13 @@ def test_sensor_with_malformed_station(
     assert sensor.device_class == SensorDeviceClass.MONETARY
     assert sensor.unit_of_measurement == "€"
     assert sensor.state == 1.825
-    assert sensor.extra_state_attributes.get("brand") == "Demo Oil"
-    assert sensor.extra_state_attributes.get("address") == "Demo Street 1a"
-    assert sensor.extra_state_attributes.get("status") == "open"
-    assert sensor.extra_state_attributes.get("latitude") == 52.53083
-    assert sensor.extra_state_attributes.get("longitude") == 13.440946
+    assert sensor.extra_state_attributes["brand"] == "Demo Oil"
+    assert sensor.extra_state_attributes["address"] == "Demo Street 1a"
+    assert sensor.extra_state_attributes["status"] == "open"
+    assert sensor.extra_state_attributes["latitude"] == 52.53083
+    assert sensor.extra_state_attributes["longitude"] == 13.440946
     assert (
-        sensor.extra_state_attributes.get("attribution")
-        == "Data provided by Tankerkönig"
+        sensor.extra_state_attributes["attribution"] == "Data provided by Tankerkönig"
     )
 
 
@@ -201,14 +200,13 @@ def test_sensor_with_opened_station(
     assert sensor.device_class == SensorDeviceClass.MONETARY
     assert sensor.unit_of_measurement == "€"
     assert sensor.state == 1.825
-    assert sensor.extra_state_attributes.get("brand") == "Demo Oil"
-    assert sensor.extra_state_attributes.get("address") == "Demo Street 1a"
-    assert sensor.extra_state_attributes.get("status") == "open"
-    assert sensor.extra_state_attributes.get("latitude") == 52.53083
-    assert sensor.extra_state_attributes.get("longitude") == 13.440946
+    assert sensor.extra_state_attributes["brand"] == "Demo Oil"
+    assert sensor.extra_state_attributes["address"] == "Demo Street 1a"
+    assert sensor.extra_state_attributes["status"] == "open"
+    assert sensor.extra_state_attributes["latitude"] == 52.53083
+    assert sensor.extra_state_attributes["longitude"] == 13.440946
     assert (
-        sensor.extra_state_attributes.get("attribution")
-        == "Data provided by Tankerkönig"
+        sensor.extra_state_attributes["attribution"] == "Data provided by Tankerkönig"
     )
 
 
@@ -242,14 +240,13 @@ def test_sensor_with_closed_station(
     assert sensor.device_class == SensorDeviceClass.MONETARY
     assert sensor.unit_of_measurement == "€"
     assert sensor.state == 1.825
-    assert sensor.extra_state_attributes.get("brand") == "Demo Oil"
-    assert sensor.extra_state_attributes.get("address") == "Demo Street 1a"
-    assert sensor.extra_state_attributes.get("status") == "closed"
-    assert sensor.extra_state_attributes.get("latitude") == 52.53083
-    assert sensor.extra_state_attributes.get("longitude") == 13.440946
+    assert sensor.extra_state_attributes["brand"] == "Demo Oil"
+    assert sensor.extra_state_attributes["address"] == "Demo Street 1a"
+    assert sensor.extra_state_attributes["status"] == "closed"
+    assert sensor.extra_state_attributes["latitude"] == 52.53083
+    assert sensor.extra_state_attributes["longitude"] == 13.440946
     assert (
-        sensor.extra_state_attributes.get("attribution")
-        == "Data provided by Tankerkönig"
+        sensor.extra_state_attributes["attribution"] == "Data provided by Tankerkönig"
     )
 
 
@@ -294,12 +291,11 @@ def test_sensor_with_multiple_stations(
     assert sensor.device_class == SensorDeviceClass.MONETARY
     assert sensor.unit_of_measurement == "€"
     assert sensor.state == 2.825
-    assert sensor.extra_state_attributes.get("brand") == "Demo Oil First"
-    assert sensor.extra_state_attributes.get("address") == "Demo Street First 1a"
-    assert sensor.extra_state_attributes.get("status") == "closed"
-    assert sensor.extra_state_attributes.get("latitude") == 52.53083
-    assert sensor.extra_state_attributes.get("longitude") == 13.440946
+    assert sensor.extra_state_attributes["brand"] == "Demo Oil First"
+    assert sensor.extra_state_attributes["address"] == "Demo Street First 1a"
+    assert sensor.extra_state_attributes["status"] == "closed"
+    assert sensor.extra_state_attributes["latitude"] == 52.53083
+    assert sensor.extra_state_attributes["longitude"] == 13.440946
     assert (
-        sensor.extra_state_attributes.get("attribution")
-        == "Data provided by Tankerkönig"
+        sensor.extra_state_attributes["attribution"] == "Data provided by Tankerkönig"
     )
