@@ -4,7 +4,7 @@ from collections.abc import Mapping
 import json
 from typing import Any
 
-from homeassistant.components.sensor import SensorDeviceClass
+from homeassistant.components.sensor import SensorStateClass
 import pytest
 import requests
 import requests_mock
@@ -44,8 +44,9 @@ def test_sensor_with_empty_response(
 
     assert sensor.name == "Sensor"
     assert sensor.icon == "mdi:gas-station"
-    assert sensor.device_class == SensorDeviceClass.MONETARY
-    assert sensor.unit_of_measurement == "€"
+    assert sensor.device_class is None
+    assert sensor.state_class == SensorStateClass.MEASUREMENT
+    assert sensor.unit_of_measurement == "EUR/L"
     assert sensor.attribution == "Data provided by Tankerkönig"
     assert sensor.state is None
     sensor_attributes = extra_state_attributes(sensor)
@@ -73,8 +74,9 @@ def test_sensor_with_malformed_response(
 
     assert sensor.name == "Sensor"
     assert sensor.icon == "mdi:gas-station"
-    assert sensor.device_class == SensorDeviceClass.MONETARY
-    assert sensor.unit_of_measurement == "€"
+    assert sensor.device_class is None
+    assert sensor.state_class == SensorStateClass.MEASUREMENT
+    assert sensor.unit_of_measurement == "EUR/L"
     assert sensor.attribution == "Data provided by Tankerkönig"
     assert sensor.state is None
     sensor_attributes = extra_state_attributes(sensor)
@@ -103,8 +105,9 @@ def test_sensor_with_error_response(
 
     assert sensor.name == "Sensor"
     assert sensor.icon == "mdi:gas-station"
-    assert sensor.device_class == SensorDeviceClass.MONETARY
-    assert sensor.unit_of_measurement == "€"
+    assert sensor.device_class is None
+    assert sensor.state_class == SensorStateClass.MEASUREMENT
+    assert sensor.unit_of_measurement == "EUR/L"
     assert sensor.attribution == "Data provided by Tankerkönig"
     assert sensor.state is None
     sensor_attributes = extra_state_attributes(sensor)
@@ -132,8 +135,9 @@ def test_sensor_with_no_response(
 
     assert sensor.name == "Sensor"
     assert sensor.icon == "mdi:gas-station"
-    assert sensor.device_class == SensorDeviceClass.MONETARY
-    assert sensor.unit_of_measurement == "€"
+    assert sensor.device_class is None
+    assert sensor.state_class == SensorStateClass.MEASUREMENT
+    assert sensor.unit_of_measurement == "EUR/L"
     assert sensor.attribution == "Data provided by Tankerkönig"
     assert sensor.state is None
     sensor_attributes = extra_state_attributes(sensor)
@@ -172,8 +176,9 @@ def test_sensor_with_malformed_station(
 
     assert sensor.name == "Sensor"
     assert sensor.icon == "mdi:gas-station"
-    assert sensor.device_class == SensorDeviceClass.MONETARY
-    assert sensor.unit_of_measurement == "€"
+    assert sensor.device_class is None
+    assert sensor.state_class == SensorStateClass.MEASUREMENT
+    assert sensor.unit_of_measurement == "EUR/L"
     assert sensor.attribution == "Data provided by Tankerkönig"
     assert sensor.state == 1.825
     sensor_attributes = extra_state_attributes(sensor)
@@ -212,8 +217,9 @@ def test_sensor_with_opened_station(
 
     assert sensor.name == "Sensor"
     assert sensor.icon == "mdi:gas-station"
-    assert sensor.device_class == SensorDeviceClass.MONETARY
-    assert sensor.unit_of_measurement == "€"
+    assert sensor.device_class is None
+    assert sensor.state_class == SensorStateClass.MEASUREMENT
+    assert sensor.unit_of_measurement == "EUR/L"
     assert sensor.attribution == "Data provided by Tankerkönig"
     assert sensor.state == 1.825
     sensor_attributes = extra_state_attributes(sensor)
@@ -252,8 +258,9 @@ def test_sensor_with_closed_station(
 
     assert sensor.name == "Sensor"
     assert sensor.icon == "mdi:gas-station"
-    assert sensor.device_class == SensorDeviceClass.MONETARY
-    assert sensor.unit_of_measurement == "€"
+    assert sensor.device_class is None
+    assert sensor.state_class == SensorStateClass.MEASUREMENT
+    assert sensor.unit_of_measurement == "EUR/L"
     assert sensor.attribution == "Data provided by Tankerkönig"
     assert sensor.state == 1.825
     sensor_attributes = extra_state_attributes(sensor)
@@ -303,8 +310,9 @@ def test_sensor_with_multiple_stations(
 
     assert sensor.name == "Sensor"
     assert sensor.icon == "mdi:gas-station"
-    assert sensor.device_class == SensorDeviceClass.MONETARY
-    assert sensor.unit_of_measurement == "€"
+    assert sensor.device_class is None
+    assert sensor.state_class == SensorStateClass.MEASUREMENT
+    assert sensor.unit_of_measurement == "EUR/L"
     assert sensor.attribution == "Data provided by Tankerkönig"
     assert sensor.state == 2.825
     sensor_attributes = extra_state_attributes(sensor)

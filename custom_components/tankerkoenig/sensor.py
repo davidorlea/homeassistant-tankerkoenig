@@ -6,15 +6,14 @@ from typing import Any, cast
 
 from homeassistant.components.sensor import (
     PLATFORM_SCHEMA,
-    SensorDeviceClass,
     SensorEntity,
+    SensorStateClass,
 )
 from homeassistant.const import (
     ATTR_LATITUDE,
     ATTR_LONGITUDE,
     CONF_API_KEY,
     CONF_NAME,
-    CURRENCY_EURO,
 )
 from homeassistant.core import HomeAssistant
 import homeassistant.helpers.config_validation as cv
@@ -39,6 +38,7 @@ DEFAULT_RADIUS = 1.5
 ATTR_BRAND = "brand"
 ATTR_ADDRESS = "address"
 ATTR_STATUS = "status"
+UNIT_EURO_PER_LITER = "EUR/L"
 
 ICON = "mdi:gas-station"
 ATTRIBUTION = "Data provided by Tankerkönig"
@@ -125,9 +125,9 @@ class TankerkoenigSensor(SensorEntity):
     """Representation of a Tankerkönig Sensor."""
 
     _attr_attribution = ATTRIBUTION
-    _attr_device_class = SensorDeviceClass.MONETARY
     _attr_icon = ICON
-    _attr_native_unit_of_measurement = CURRENCY_EURO
+    _attr_native_unit_of_measurement = UNIT_EURO_PER_LITER
+    _attr_state_class = SensorStateClass.MEASUREMENT
 
     def __init__(
         self,
