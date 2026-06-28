@@ -4,9 +4,12 @@ from datetime import timedelta
 import logging
 from typing import Any, cast
 
-from homeassistant.components.sensor import PLATFORM_SCHEMA, SensorDeviceClass
+from homeassistant.components.sensor import (
+    PLATFORM_SCHEMA,
+    SensorDeviceClass,
+    SensorEntity,
+)
 from homeassistant.const import (
-    ATTR_ATTRIBUTION,
     ATTR_LATITUDE,
     ATTR_LONGITUDE,
     CONF_API_KEY,
@@ -15,7 +18,6 @@ from homeassistant.const import (
 )
 from homeassistant.core import HomeAssistant
 import homeassistant.helpers.config_validation as cv
-from homeassistant.helpers.entity import Entity
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 from homeassistant.util import Throttle
@@ -119,8 +121,13 @@ class TankerkoenigApi:
             return None
 
 
-class TankerkoenigSensor(Entity):
+class TankerkoenigSensor(SensorEntity):
     """Representation of a Tankerkönig Sensor."""
+
+    _attr_attribution = ATTRIBUTION
+    _attr_device_class = SensorDeviceClass.MONETARY
+    _attr_icon = ICON
+    _attr_native_unit_of_measurement = CURRENCY_EURO
 
     def __init__(
         self,
@@ -133,49 +140,19 @@ class TankerkoenigSensor(Entity):
     ) -> None:
         """Initialize the Tankerkönig Sensor."""
         self._api: TankerkoenigApi = api
-        self._name: str = name
+        self._attr_name = name
         self._latitude: float = latitude
         self._longitude: float = longitude
         self._radius: float = radius
         self._fuel_type: str = fuel_type
-        self._state: float | None = None
-        self._attributes: dict[str, Any] = {}
-
-    @property
-    def name(self) -> str:
-        """Return the name of the Tankerkönig Sensor."""
-        return self._name
-
-    @property
-    def device_class(self) -> SensorDeviceClass:
-        """Return the device class of the Tankerkönig Sensor."""
-        return SensorDeviceClass.MONETARY
-
-    @property
-    def unit_of_measurement(self) -> str:
-        """Return the unit of measurement of the Tankerkönig Sensor."""
-        return CURRENCY_EURO
-
-    @property
-    def icon(self) -> str:
-        """Icon to use in the frontend of the Tankerkönig Sensor."""
-        return ICON
-
-    @property
-    def state(self) -> float | None:
-        """Return the state of the Tankerkönig Sensor."""
-        return self._state
-
-    @property
-    def extra_state_attributes(self) -> dict[str, Any]:
-        """Return the state attributes of the Tankerkönig Sensor."""
-        return self._attributes
+        self._attr_native_value: float | None = None
+        self._attr_extra_state_attributes: dict[str, Any] = {}
 
     @Throttle(MIN_TIME_BETWEEN_UPDATES)
     def update(self) -> None:
         """Fetch new state data for the Tankerkönig Sensor."""
-        self._state = None
-        self._attributes = {}
+        self._attr_native_value = None
+        self._attr_extra_state_attributes = {}
 
         result: dict[str, Any] | None = self._api.get_stations(
             self._latitude, self._longitude, self._radius, self._fuel_type
@@ -193,14 +170,15 @@ class TankerkoenigSensor(Entity):
                 )
 
         if stations:
-            self._state = stations[0]["price"]
-            self._attributes[ATTR_BRAND] = stations[0]["brand"].title().strip()
-            self._attributes[ATTR_ADDRESS] = (
+            self._attr_native_value = stations[0]["price"]
+            self._attr_extra_state_attributes[ATTR_BRAND] = (
+                stations[0]["brand"].title().strip()
+            )
+            self._attr_extra_state_attributes[ATTR_ADDRESS] = (
                 f"{stations[0]['street'].title().strip()} {stations[0]['houseNumber'].strip()}"
             )
-            self._attributes[ATTR_STATUS] = (
+            self._attr_extra_state_attributes[ATTR_STATUS] = (
                 "open" if stations[0]["isOpen"] else "closed"
             )
-            self._attributes[ATTR_LATITUDE] = stations[0]["lat"]
-            self._attributes[ATTR_LONGITUDE] = stations[0]["lng"]
-            self._attributes[ATTR_ATTRIBUTION] = ATTRIBUTION
+            self._attr_extra_state_attributes[ATTR_LATITUDE] = stations[0]["lat"]
+            self._attr_extra_state_attributes[ATTR_LONGITUDE] = stations[0]["lng"]
